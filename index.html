@@ -1,113 +1,129 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
 <meta charset="UTF-8">
-<title>Live GPS Tracker</title>
-
-<link rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<title>GPS Tracker</title>
 
 <style>
 
 body{
-font-family:Arial;
-background:#0f172a;
-color:white;
+font-family: Arial;
+background:#f4f6fb;
 text-align:center;
-padding:20px;
+padding:30px;
 }
 
 .container{
-background:#1e293b;
-padding:20px;
-border-radius:10px;
-max-width:400px;
+background:white;
+padding:30px;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+max-width:420px;
 margin:auto;
+}
+
+h2{
+margin-bottom:10px;
 }
 
 input{
 width:90%;
-padding:10px;
-margin:10px;
+padding:12px;
+margin:10px 0;
 border-radius:8px;
-border:none;
+border:1px solid #ccc;
+font-size:15px;
 }
 
 button{
-padding:10px 20px;
+padding:12px 20px;
 border:none;
 border-radius:8px;
-background:#22c55e;
+background:#4CAF50;
 color:white;
 font-size:16px;
 cursor:pointer;
 }
 
-#map{
-height:450px;
+button:hover{
+background:#43a047;
+}
+
+.status{
+margin-top:15px;
+color:#666;
+font-size:14px;
+}
+
+.dataBox{
 margin-top:20px;
+background:#f7f9ff;
+padding:15px;
 border-radius:10px;
+text-align:left;
+}
+
+.dataRow{
+margin:8px 0;
+font-size:14px;
+}
+
+.label{
+font-weight:bold;
 }
 
 </style>
-
 </head>
 
 <body>
 
-<h2>📍 Live GPS Tracker</h2>
-
 <div class="container">
 
-<input id="device"
-placeholder="Nama Device (contoh: iPhone Adinda)">
+<h2>GPS Tracker</h2>
 
-<br>
+<input id="device" placeholder="Device ID (contoh: iphone-adinda)">
 
-<button onclick="startTracking()">
-Start Tracking
-</button>
+<button onclick="startTracking()">Start Tracking</button>
 
-<div id="status">
-Status: belum tracking
+<div class="status" id="status">
+Status: Belum tracking
+</div>
+
+<div class="dataBox">
+
+<div class="dataRow">
+<span class="label">Latitude :</span>
+<span id="lat">-</span>
+</div>
+
+<div class="dataRow">
+<span class="label">Longitude :</span>
+<span id="lng">-</span>
+</div>
+
+<div class="dataRow">
+<span class="label">Accuracy :</span>
+<span id="acc">-</span>
 </div>
 
 </div>
 
-<div id="map"></div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</div>
 
 <script>
 
-const API_URL =
-"https://script.google.com/macros/s/AKfycbx_hxFvjqqE_7k3ZYNnDbG-cRyyUjfJovukkiP30OCm4JBz7x8sL3pF9KkEMiD28OVevg/exec";
-
-let map = L.map('map').setView([-7.274,112.760], 15);
-
-L.tileLayer(
-'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-{
-maxZoom:19
-}
-).addTo(map);
-
-let marker;
+const API_URL = "https://script.google.com/macros/s/AKfycbw5I0crqb3J_tcJp74-A2IIHHT5suyPlNQDr74nKC6FcEZJDTYoPu-ep54p9ksthzsE/exec";
 
 function startTracking(){
 
-const device =
-document.getElementById("device").value;
+const device = document.getElementById("device").value;
 
-if(device===""){
-alert("Masukkan nama device dulu");
+if(device === ""){
+alert("Masukkan device_id dulu!");
 return;
 }
 
-document.getElementById("status").innerText
-="Tracking aktif...";
+document.getElementById("status").innerText = "Tracking aktif...";
 
 navigator.geolocation.watchPosition(
 
@@ -115,26 +131,19 @@ function(position){
 
 const lat = position.coords.latitude;
 const lng = position.coords.longitude;
+const acc = position.coords.accuracy;
 
-if(marker){
-marker.setLatLng([lat,lng]);
-}else{
-marker = L.marker([lat,lng]).addTo(map);
-}
+document.getElementById("lat").innerText = lat;
+document.getElementById("lng").innerText = lng;
+document.getElementById("acc").innerText = acc + " meter";
 
-map.setView([lat,lng],16);
-
-fetch(API_URL +
-"?lat="+lat+
-"&lng="+lng+
-"&device="+device);
+fetch(API_URL + "?lat=" + lat + "&lng=" + lng + "&device=" + device);
 
 },
 
 function(error){
 
-document.getElementById("status").innerText
-="GPS Error";
+document.getElementById("status").innerText = "GPS Error";
 
 },
 
